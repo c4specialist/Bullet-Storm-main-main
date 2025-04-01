@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -31,26 +30,27 @@ public class PlayerHealth : MonoBehaviour
     public void TakeDamage(float damage)
     {
         currentHealth -= damage;
-        currentHealth = Mathf.Max(currentHealth, 0); // Prevent negative health
+        currentHealth = Mathf.Max(currentHealth, 0);
         UpdateHealthUI();
 
         if (currentHealth <= 0)
         {
             Die();
-
-            // ✅ Save current level before switching to Game Over scene
-            PlayerPrefs.SetString("LastLevel", SceneManager.GetActiveScene().name);
-            PlayerPrefs.Save(); // Ensure data is written to disk
-
-            SceneManager.LoadScene("Game Over"); // Ensure this matches the actual scene name
         }
     }
 
     public void Heal(float amount)
     {
-        currentHealth += amount;
-        currentHealth = Mathf.Min(currentHealth, maxHealth); // Cap at max health
-        UpdateHealthUI();
+        if (currentHealth < maxHealth)
+        {
+            currentHealth += amount;
+            currentHealth = Mathf.Min(currentHealth, maxHealth);
+            UpdateHealthUI();
+        }
+        else
+        {
+            Debug.Log("Health is already full!"); 
+        }
     }
 
     private void UpdateHealthUI()
@@ -67,23 +67,18 @@ public class PlayerHealth : MonoBehaviour
         if (healthBarFill != null)
         {
             if (currentHealth > maxHealth * 0.5f)
-            {
                 healthBarFill.color = Color.green;
-            }
             else if (currentHealth > maxHealth * 0.25f)
-            {
                 healthBarFill.color = Color.yellow;
-            }
             else
-            {
                 healthBarFill.color = Color.red;
-            }
         }
     }
 
     private void Die()
     {
-        // Handle player death here
         Debug.Log("Player died!");
+        PlayerPrefs.SetString("LastLevel", SceneManager.GetActiveScene().name);
+        PlayerPrefs.Save();
     }
 }
