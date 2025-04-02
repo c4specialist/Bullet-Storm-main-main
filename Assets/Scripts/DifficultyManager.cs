@@ -6,7 +6,7 @@ public class DifficultyManager : MonoBehaviour
     public DifficultyLevel currentDifficulty = DifficultyLevel.Medium;
     public int enemyHealth;
 
-    void Awake()
+    private void Awake()
     {
         if (Instance == null)
         {

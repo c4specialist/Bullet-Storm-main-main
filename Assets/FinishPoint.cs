@@ -5,7 +5,7 @@ public class FinishPoint : MonoBehaviour
 {
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player")) // Make sure your player has the "Player" tag
+        if (other.CompareTag("Player"))
         {
             LoadNextLevel();
         }
@@ -14,6 +14,21 @@ public class FinishPoint : MonoBehaviour
     void LoadNextLevel()
     {
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-        SceneManager.LoadScene(currentSceneIndex + 1);
+        int totalScenes = SceneManager.sceneCountInBuildSettings;
+
+        // Check if the current scene is not the last scene in the build settings
+        if (currentSceneIndex + 1 < totalScenes)
+        {
+            // Load the next scene in the build settings
+            SceneManager.LoadScene(currentSceneIndex + 1);
+
+            PlayerPrefs.SetInt("UnlockedLevel", currentSceneIndex + 2); // Unlock the next level
+            PlayerPrefs.Save();
+        }
+        else
+        {
+            Debug.Log("You have completed the game!");
+            SceneManager.LoadScene("Complete");
+        }
     }
 }

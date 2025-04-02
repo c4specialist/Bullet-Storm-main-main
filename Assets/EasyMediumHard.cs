@@ -2,10 +2,17 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class DifficultySlider : MonoBehaviour
+public enum DifficultyLevel
 {
-    public Slider difficultySlider; 
-    public TMP_Text difficultyText; 
+    Easy = 0,
+    Medium = 1,
+    Hard = 2
+}
+
+public class EasyMediumHard : MonoBehaviour
+{
+    public Slider difficultySlider;
+    public TMP_Text difficultyText;
 
     void Start()
     {
@@ -15,17 +22,18 @@ public class DifficultySlider : MonoBehaviour
         }
         else
         {
-            UpdateDifficulty();
+            LoadDifficulty();
         }
 
         difficultySlider.minValue = 0;
         difficultySlider.maxValue = 2;
         difficultySlider.wholeNumbers = true;
 
-        difficultySlider.onValueChanged.AddListener(delegate { UpdateDifficultyText(); });
+        difficultySlider.onValueChanged.AddListener(delegate { UpdateDifficulty(); });
         UpdateDifficultyText();
     }
 
+    // Update the Difficulty in the DifficultyManager and save it to PlayerPrefs
     public void UpdateDifficulty()
     {
         if (DifficultyManager.Instance != null)
@@ -33,9 +41,14 @@ public class DifficultySlider : MonoBehaviour
             DifficultyManager.Instance.SetDifficulty((DifficultyLevel)(int)difficultySlider.value);
             Debug.Log("Difficulty updated: " + DifficultyManager.Instance.currentDifficulty);
             Debug.Log("Enemy health updated: " + DifficultyManager.Instance.enemyHealth);
+
+            // Save the selected difficulty to PlayerPrefs
+            PlayerPrefs.SetInt("Difficulty", (int)difficultySlider.value);
+            PlayerPrefs.Save();
         }
     }
 
+    // Update the displayed difficulty text based on the slider value
     public void UpdateDifficultyText()
     {
         switch ((int)difficultySlider.value)
@@ -55,8 +68,21 @@ public class DifficultySlider : MonoBehaviour
         }
     }
 
+    // Load difficulty setting from PlayerPrefs and set the slider value
+    private void LoadDifficulty()
+    {
+        if (PlayerPrefs.HasKey("Difficulty"))
+        {
+            int savedDifficulty = PlayerPrefs.GetInt("Difficulty");
+            difficultySlider.value = savedDifficulty;
+            UpdateDifficulty();
+        }
+        else
+        {
+            difficultySlider.value = 1; // Default to Medium
+            UpdateDifficulty();
+        }
 
+        UpdateDifficultyText();
+    }
 }
-
-public enum DifficultyLevel { Easy = 0, Medium = 1, Hard = 2 }
-
